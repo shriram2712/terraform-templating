@@ -1,0 +1,5 @@
+{% for region in regions %}
+    {% if region.enable_ec2 == "true" %}
+        ec2list_{{ account_id }}_{{ region.region }} = {{ region.ec2list }}
+    {% endif %}
+{% endfor %}

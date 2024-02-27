@@ -1,0 +1,41 @@
+#Generated from Terraform template in Jinja
+
+
+{% for region in regions %}
+    {% if region.enable_vpc == "true" %}
+        module "vpc_{{ account_id }}_{{ region.region }}_{{ region.vpc.name }}" {
+            source = "../modules/vpc"
+            providers = {
+                aws = aws.{{ account_id }}-{{ region.region }}
+            }
+            name = "{{ region.vpc.name }}"
+        }
+
+        {% for subnet in region.subnets %}
+            module "subnet_{{ account_id }}_{{ region.region }}_{{ subnet.name }}" {
+                source = "../modules/subnet"
+                providers = {
+                    aws = aws.{{ account_id }}-{{ region.region }}
+                }
+                vpc_id = module.vpc_{{ account_id }}_{{ region.region }}_{{ region.vpc.name }}.id
+                name = {{ subnet.name }}
+                cidr_block = "{{ subnet.cidr_block }}"
+            }
+        {% endfor %}
+    {% endif %}
+
+    
+    {% if region.enable_ec2 == "true" %}
+        module "ec2_{{ account_id }}_{{ region.region }}" {
+            for_each = var.ec2list_{{ account_id }}_{{ region.region }}
+            source = "../modules/ec2"
+            providers = {
+                aws = aws.{{ account_id }}-{{ region.region }}
+            }
+            name = each.value.name
+            subnet_id = "module.subnet_{{ account_id }}_{{ region.region }}_${each.value.subnet_name}.id"
+        }
+    {% endif %}
+    
+{% endfor %}
+

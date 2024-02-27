@@ -1,0 +1,9 @@
+
+{% for region in regions %}
+    {% if region.enable_ec2 == "true" %}
+        variable "ec2list_{{ account_id }}_{{ region.region}}" {
+            type = list(any)
+            default = [] 
+        }
+    {% endif %}
+{% endfor %}
