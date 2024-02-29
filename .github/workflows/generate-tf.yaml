@@ -10,9 +10,9 @@ jobs:
     name: Run npm on Ubuntu
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup@v3
-        with:
-          node-version: '14'
-      - run: npm help
+      - name: checkout-repo
+        uses: actions/checkout@v3
+      - name: get-workspace-yaml
+        id: admin-workspace
+        run: |
+          test
