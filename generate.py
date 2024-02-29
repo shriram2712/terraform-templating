@@ -51,7 +51,6 @@ for account in accounts:
     shutil.copyfile("./templates/outputs-tf-jinja.txt", path+"/outputs.tf")
     
     copy_tree ("./modules", path+"/modules")
-    print(path)
     shutil.make_archive(path,format="gztar", root_dir=path)
 
     API_ENDPOINT = "https://app.terraform.io/api/v2/organizations/{ORG_NAME}/workspaces"
@@ -63,13 +62,11 @@ for account in accounts:
     "Content-Type": "application/vnd.api+json",
     }    
 
-    print(path)
     workspace_name = account["account_id"]
 
     try:
         response = requests.get(API_ENDPOINT.format(ORG_NAME="shriramrajaraman")+"/"+workspace_name, headers=headers)
         workspace_id = response.json()["data"]["id"]
-        print(path)
         print(workspace_id)
         config_version = {"data":{"type":"configuration-versions"}}
         json_config_version = json.dumps(config_version)
