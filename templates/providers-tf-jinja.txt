@@ -2,14 +2,14 @@ terraform {
   required_providers {
     aws = {
         source = "hashicorp/aws"
-        version = "~5.36.0"
+        version = ">=5.36.0"
     }
   }
 }
 
 {% for region in regions %}
 provider "aws" {
-    region = {{ region.region }}
-    alias = {{ account_id }}-{{ region.region }}
+    region = "{{ region.region }}"
+    alias = "{{ account_id }}-{{ region.region }}"
 }
 {% endfor %}

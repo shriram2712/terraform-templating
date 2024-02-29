@@ -1,9 +1,10 @@
-
 {% for region in regions %}
-    {% if region.enable_ec2 == "true" %}
-        variable "ec2list_{{ account_id }}_{{ region.region}}" {
-            type = list(any)
-            default = [] 
-        }
-    {% endif %}
+    {% for subnet in region.subnets %}
+        {% if subnet.enable_ec2 == "true" %}
+            variable "ec2list_{{ account_id }}_{{ region.region }}_{{ subnet.name }}" {
+                type = list(any)
+                default = [] 
+            }
+        {% endif %}
+    {% endfor %}
 {% endfor %}

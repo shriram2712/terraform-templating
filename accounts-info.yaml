@@ -1,0 +1,43 @@
+- account_id: test_account
+  regions:
+  - enable_vpc: 'true'
+    region: us-east-1
+    subnets:
+    - cidr_block: 172.20.0.0/24
+      ec2list:
+      - name: ec2one
+      - name: ec2two
+      enable_ec2: 'true'
+      name: subnetone
+    - cidr_block: 172.20.1.0/24
+      enable_ec2: 'false'
+      name: subnettwo
+    vpc:
+      name: test-vpc
+  - enable_vpc: 'true'
+    region: us-east-2
+    subnets:
+    - cidr_block: 172.20.0.0/24
+      enable_ec2: 'false'
+      name: subnetone
+    - cidr_block: 172.20.1.0/24
+      ec2list:
+      - name: ec2one
+      - name: ec2two
+      enable_ec2: 'true'
+      name: subnettwo
+    vpc:
+      name: test-vpc
+- account_id: test_account2
+  regions:
+  - enable_vpc: 'true'
+    region: us-west-1
+    subnets:
+    - cidr_block: 172.20.0.0/24
+      enable_ec2: 'false'
+      name: subnetone
+    - cidr_block: 172.20.1.0/24
+      enable_ec2: 'false'
+      name: subnettwo
+    vpc:
+      name: test-vpc

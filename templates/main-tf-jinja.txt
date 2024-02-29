@@ -18,23 +18,25 @@
                     aws = aws.{{ account_id }}-{{ region.region }}
                 }
                 vpc_id = module.vpc_{{ account_id }}_{{ region.region }}_{{ region.vpc.name }}.id
-                name = {{ subnet.name }}
+                name = "{{ subnet.name }}"
                 cidr_block = "{{ subnet.cidr_block }}"
             }
+
+            {% if subnet.enable_ec2 == "true" %}
+                {% for ec2 in subnet.ec2list %}
+                    module "ec2_{{ account_id }}_{{ region.region }}_{{ ec2.name }}" {
+                        source = "./modules/ec2-without-for"
+                        providers = {
+                            aws = aws.{{ account_id }}-{{ region.region }}
+                        }
+                        name = "{{ ec2.name }}"
+                        subnet_id = module.subnet_{{ account_id }}_{{ region.region }}_{{ subnet.name }}.id
+                    }
+                {% endfor %}
+            {% endif %}
         {% endfor %}
     {% endif %}
 
-    {% if region.enable_ec2 == "true" %}
-        {% for ec2 in region.ec2list %}
-            module "ec2_{{ account_id }}_{{ region.region }}_{{ ec2.name }}" {
-                source = "../modules/ec2"
-                providers = {
-                    aws = aws.{{ account_id }}-{{ region.region }}
-                }
-                name = "{{ ec2.name }}"
-                subnet_id = module.subnet_{{ account_id }}_{{ region.region }}_{{ ec2.subnet_name }}.id
-            }
-        {% endfor %}
-    {% endif %}
+    
 {% endfor %}
 

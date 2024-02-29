@@ -1,5 +1,7 @@
 {% for region in regions %}
-    {% if region.enable_ec2 == "true" %}
-        ec2list_{{ account_id }}_{{ region.region }} = {{ region.ec2list }}
-    {% endif %}
+    {% for subnet in region.subnets %}
+        {% if subnet.enable_ec2 == "true" %}
+            ec2list_{{ account_id }}_{{ region.region }}_{{ subnet.name }} = {{ subnet.ec2list }}
+        {% endif %}
+    {% endfor %}
 {% endfor %}

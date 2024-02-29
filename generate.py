@@ -2,101 +2,24 @@ from jinja2 import Environment, FileSystemLoader
 import os
 import shutil
 import json
+from distutils.dir_util import copy_tree
+import yaml
 
 environment = Environment(loader=FileSystemLoader("templates/"))
+accounts = []
+accounts_yaml = []
+with open('accounts-info.json') as json_file:
+    accounts = json.load(json_file)
+    accounts_yaml = yaml.dump(accounts)
 
-accounts = [
-    {
-        "account_id" : "test_account",
-        "regions" :  [ {
-            "enable_vpc" : "true",
-            "region"     : "us-east-1",
-            "vpc"        : {
-                "name"  : "test-vpc"
-            },
-            "subnets"  : [
-                {
-                    "name": "subnetone",
-                    "cidr_block": "172.20.0.0/24"
-                },
-                {
-                    "name": "subnettwo",
-                    "cidr_block": "172.20.1.0/24"
-                }
-            ],
-            "enable_ec2" : "true",
-            "ec2list" : [
-                {
-                    "name" : "ec2one",
-                    "subnet_name" : "subnetone"
-                },
-                {
-                    "name" : "ec2two",
-                    "subnet_name" : "subnettwo"
-                }
-            ]
-        },
-        {
-            "enable_vpc" : "true",
-            "region"     : "us-east-2",
-            "vpc"        : {
-                "name"  : "test-vpc"
-            },
-            "subnets"  : [
-                {
-                    "name": "subnetone",
-                    "cidr_block": "172.20.0.0/24"
-                },
-                {
-                    "name": "subnettwo",
-                    "cidr_block": "172.20.1.0/24"
-                }
-            ],
-            "enable_ec2" : "true",
-            "ec2list" : [
-                {
-                    "name" : "ec2one",
-                    "subnet_name" : "subnetone"
-                },
-                {
-                    "name" : "ec2two",
-                    "subnet_name" : "subnettwo"
-                }
-            ]
-        }   
-        ]
-    }, 
-    
-     {
-        "account_id" : "test_account2",
-        "regions" :  [ {
-            "enable_vpc" : "true",
-            "region"     : "us-west-1",
-            "vpc"        : {
-                "name"  : "test-vpc"
-            },
-            "subnets"  : [
-                {
-                    "name": "subnetone",
-                    "cidr_block": "172.20.0.0/24"
-                },
-                {
-                    "name": "subnettwo",
-                    "cidr_block": "172.20.1.0/24"
-                }
-            ],
-            "enable_ec2" : "false",
-        },   
-        ]
-    }, 
-    
-
-]
+# with open('accounts-info.yaml', mode="w", encoding="utf-8") as code:
+#     code.write(accounts_yaml)
 
 for account in accounts:
     path = "terraform-files/"+account["account_id"]
     if not os.path.exists(path):
         os.mkdir(path)    
+        os.mkdir(path+"/modules")
     template = environment.get_template("main-tf-foreach-loop-jinja.txt")
     content = template.render(account)
     
@@ -125,3 +48,4 @@ for account in accounts:
 
     shutil.copyfile("./templates/outputs-tf-jinja.txt", path+"/outputs.tf")
     
+    copy_tree ("./modules", path+"/modules")

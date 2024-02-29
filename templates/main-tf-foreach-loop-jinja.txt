@@ -1,10 +1,10 @@
 #Generated from Terraform template in Jinja
-
+# Additional feature to be added for for_each loop with dependencies
 
 {% for region in regions %}
     {% if region.enable_vpc == "true" %}
         module "vpc_{{ account_id }}_{{ region.region }}_{{ region.vpc.name }}" {
-            source = "../modules/vpc"
+            source = "./modules/vpc"
             providers = {
                 aws = aws.{{ account_id }}-{{ region.region }}
             }
@@ -13,28 +13,34 @@
 
         {% for subnet in region.subnets %}
             module "subnet_{{ account_id }}_{{ region.region }}_{{ subnet.name }}" {
-                source = "../modules/subnet"
+                source = "./modules/subnet"
                 providers = {
                     aws = aws.{{ account_id }}-{{ region.region }}
                 }
                 vpc_id = module.vpc_{{ account_id }}_{{ region.region }}_{{ region.vpc.name }}.id
-                name = {{ subnet.name }}
+                name = "{{ subnet.name }}"
                 cidr_block = "{{ subnet.cidr_block }}"
             }
-        {% endfor %}
-    {% endif %}
 
-    
-    {% if region.enable_ec2 == "true" %}
-        module "ec2_{{ account_id }}_{{ region.region }}" {
-            for_each = var.ec2list_{{ account_id }}_{{ region.region }}
-            source = "../modules/ec2"
-            providers = {
-                aws = aws.{{ account_id }}-{{ region.region }}
-            }
-            name = each.value.name
-            subnet_id = "module.subnet_{{ account_id }}_{{ region.region }}_${each.value.subnet_name}.id"
-        }
+            {% if subnet.enable_ec2 == "true" %}
+                locals {
+                    updated_ec2list_{{ account_id }}_{{ region.region }}_{{ subnet.name }} = { for ec2 in var.ec2list_{{ account_id }}_{{ region.region }}_{{ subnet.name }} : ec2.name => {
+                            name = ec2.name
+                        }
+                    }
+                }
+
+                module "ec2_{{ account_id }}_{{ region.region }}_{{ subnet.name }}" {
+                    for_each = local.updated_ec2list_{{ account_id }}_{{ region.region }}_{{ subnet.name }}
+                    source = "./modules/ec2"
+                    providers = {
+                        aws = aws.{{ account_id }}-{{ region.region }}
+                    }
+                    name = each.value.name
+                    subnet_id = module.subnet_{{ account_id }}_{{ region.region }}_{{ subnet.name }}.id
+                }
+            {% endif %}
+        {% endfor %}
     {% endif %}
     
 {% endfor %}
