@@ -15,4 +15,4 @@ jobs:
       - name: get-workspace-yaml
         id: admin-workspace
         run: |
-          test
+          ls
